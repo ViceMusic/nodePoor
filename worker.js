@@ -22,7 +22,8 @@ let id;
 const startInquriy=(msg)=>{
     //启动模型，
     pythonProcess = spawn('python', ['./foot.py', msg, '请你帮我诊断这张图片' ], {   
-        stdio: ['pipe', 'pipe', 'pipe'] 
+        stdio: ['pipe', 'pipe', 'pipe'] ,
+        encoding: 'utf-8'
     });
     //为模型增加一个输出监听， 从此会开始监听模型的输出
     pythonProcess.stdout.on('data', (data) => {
@@ -33,7 +34,13 @@ const startInquriy=(msg)=>{
             parentPort.postMessage({type:3, id:id, url:msg})
         }
         //响应2, 告知前端模型的意见
-        parentPort.postMessage({type:2, id:id, message:data})
+        // 将Buffer对象转换为十六进制字符串，并使用正则表达式替换掉空格
+        const hexString = data.toString('hex').replace(/ /g, '');
+        console.log(Buffer.from(hexString, 'hex'))
+        // 将十六进制字符串转换为实际的字符串
+        const str = Buffer.from(hexString, 'hex').toString('utf-8');
+        console.log(str)
+        parentPort.postMessage({type:2, id:id, message:str})
     });
 }
 

@@ -3,6 +3,7 @@ import sys
 
 # 循环接收用户输入并进行对话，直到接收到指令退出
 # 模拟的是一个模型的功能
+sys.stdout.buffer.write("你好".encode('utf-8'))
 while True:
     # 接收用户输入, 这里是一个组合方法
     user_input = input() 
@@ -16,5 +17,5 @@ while True:
     # user_input发送给模型
 
     # python的回答, 也就是我们所需要的诊断内容, 果然是把这一句直接ASCII化了
-    print('1 I get you message \n')
+    sys.stdout.buffer.write("模型输出".encode('utf-8'))
 
