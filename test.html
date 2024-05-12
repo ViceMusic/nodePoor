@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test</title>
+</head>
+<body>
+    <button onclick="sendMessage()">尝试对话</button>
+    <button onclick="stopMessage()">停止本次对话</button>
+    <input type="file" id="fileInput" accept="*"> <!--选中文件-->>
+    <button onclick="sendImage()">Send Image</button>
+    <script>
+        //对象转变为json
+        function objectToJson(obj) {
+            try {
+                return JSON.stringify(obj);
+            } catch (error) {
+                console.error('Error converting object to JSON:', error);
+                return null;
+            }
+        }
+        //json转化为字符串
+        function jsonToObject(jsonString) {
+            try {
+                return JSON.parse(jsonString);
+            } catch (error) {
+                console.error('Error converting JSON to object:', error);
+                return null;
+            }
+        }
+        
+        ws = new WebSocket('ws://localhost:3000');   //先建立链接
+       
+        let id;  //前端设立一个状态
+
+        ws.addEventListener('open', () => {                //链接建立
+            console.log('WebSocket connection established');
+        });
+
+        ws.addEventListener('message', (message) => {      //接收消息
+            const data=jsonToObject(message.data)
+            //如果type==0 就是修改得到了一个id
+            if(data.type===0)
+                id=data.id
+            else if(data.type===1){
+                console.log('子线程传来的最后消息为', data.message)
+            }
+            else if(data.type===2){
+                console.log('子线程传来的对话数据为', data.message)
+            }
+        });
+
+        ws.addEventListener('close', () => {               
+            console.log('WebSocket connection closed');
+        });
+
+        //一些函数===========================================================
+        //发送信息
+        function sendMessage(){
+            ws.send(objectToJson({type:2, id:id, message:'来个对话'}))
+        }
+        function stopMessage(){
+            ws.send(objectToJson({type:1, id:id}))
+        }
+        function sendImage() {
+            const fileInput = document.getElementById('fileInput');
+            console.log(fileInput)
+            const file = fileInput.files[0];
+            console.log(file)
+            
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            
+            reader.onload = function(event) {
+                const imageData = event.target.result;
+                ws.send(objectToJson({type:3, id:id, data:imageData })); // 发送图像数据到后端
+            }
+        }
+        
+    </script>
+</body>
+</html>
