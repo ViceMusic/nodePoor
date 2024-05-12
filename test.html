@@ -29,7 +29,7 @@
                 return null;
             }
         }
-        
+
         ws = new WebSocket('ws://localhost:3000');   //先建立链接
        
         let id;  //前端设立一个状态
@@ -44,10 +44,10 @@
             if(data.type===0)
                 id=data.id
             else if(data.type===1){
-                console.log('子线程传来的最后消息为', data.message)
+                console.log('当前问诊已经结束')
             }
             else if(data.type===2){
-                console.log('子线程传来的对话数据为', data.message)
+                console.log('模型消息回复为', (String)(data.message))
             }
         });
 
@@ -55,14 +55,15 @@
             console.log('WebSocket connection closed');
         });
 
-        //一些函数===========================================================
-        //发送信息
+        //发送一条信息
         function sendMessage(){
             ws.send(objectToJson({type:2, id:id, message:'来个对话'}))
         }
+        //停止对话
         function stopMessage(){
             ws.send(objectToJson({type:1, id:id}))
         }
+        //开启对话
         function sendImage() {
             const fileInput = document.getElementById('fileInput');
             console.log(fileInput)

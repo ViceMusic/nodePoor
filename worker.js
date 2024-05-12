@@ -17,6 +17,7 @@ let  pythonProcess;
 //会议id
 let id;
 
+
 //开启问诊状态
 const startInquriy=(msg)=>{
     console.log('输入进来图片的地址为',msg)
@@ -25,7 +26,7 @@ const startInquriy=(msg)=>{
     });
     sendDataToPython('图片'+msg);
     pythonProcess.stdout.on('data', (data) => {
-        parentPort.postMessage({type:2, id:id, message:data})
+        parentPort.postMessage({type:2, id:id, message:data.toString()})
     });
 }
 
