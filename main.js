@@ -59,7 +59,7 @@ wss.on('connection', (ws) => {
                 fs.writeFile(imagePath, imageBuffer, (err) => {
                     if (err) {console.error('Error saving image:', err); return; }
                 });
-                // 将图片信息传递
+                // 将图片的保存地址传递给子进程
                 work.postMessage({...data,url:imagePath})
             }
         }
@@ -87,6 +87,8 @@ wss.on('connection', (ws) => {
             conn.getWebSocket().send(objectToJson(message))
         }else if(message.type===1){
             workers.delete(message.id) //从维护队列中删除
+            conn.getWebSocket().send(objectToJson(message)) //将数据发送给前端
+        }else if(message.type===3){
             conn.getWebSocket().send(objectToJson(message)) //将数据发送给前端
         }
     })

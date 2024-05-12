@@ -8,7 +8,7 @@
 <body>
     <button onclick="sendMessage()">尝试对话</button>
     <button onclick="stopMessage()">停止本次对话</button>
-    <input type="file" id="fileInput" accept="*"> <!--选中文件-->>
+    <input type="file" id="fileInput" accept="*"> <!--选中文件-->
     <button onclick="sendImage()">Send Image</button>
     <script>
         //对象转变为json
@@ -44,10 +44,13 @@
             if(data.type===0)
                 id=data.id
             else if(data.type===1){
-                console.log('当前问诊已经结束')
+                console.log('当前问诊已经结束')/*似乎不是很需要这个*/
             }
             else if(data.type===2){
                 console.log('模型消息回复为', (String)(data.message))
+            }
+            else if(data.type===3){
+                console.log('图片的存储地点为', data.url)
             }
         });
 
@@ -63,12 +66,10 @@
         function stopMessage(){
             ws.send(objectToJson({type:1, id:id}))
         }
-        //开启对话
+        //传递一张图片过去，
         function sendImage() {
             const fileInput = document.getElementById('fileInput');
-            console.log(fileInput)
             const file = fileInput.files[0];
-            console.log(file)
             
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -78,6 +79,17 @@
                 ws.send(objectToJson({type:3, id:id, data:imageData })); // 发送图像数据到后端
             }
         }
+        /*
+        已经完整通过黑核测试了， 现在整理成面向前端的内容
+
+        请求3： 将图片以base64的形式发送给后端，并且开启一次对话（把图片传递给中端）
+        请求2： 向模型发送一条消息
+        请求1： 关闭此次模型对话
+
+        响应3： 告知前端后端已经开启了，并且已经将图片存放到某处了
+        响应2:  监听模型的反馈并且响应
+        
+        */
         
     </script>
 </body>

@@ -18,24 +18,29 @@ let  pythonProcess;
 let id;
 
 
-//开启问诊状态
+//开启问诊状态，参数为图片的地址
 const startInquriy=(msg)=>{
-    console.log('输入进来图片的地址为',msg)
-    pythonProcess = spawn('python', ['./foot.py', msg ], {   
+    //启动模型，
+    pythonProcess = spawn('python', ['./foot.py', msg, '请你帮我诊断这张图片' ], {   
         stdio: ['pipe', 'pipe', 'pipe'] 
     });
-    sendDataToPython('图片'+msg);
+    //为模型增加一个输出监听， 从此会开始监听模型的输出
     pythonProcess.stdout.on('data', (data) => {
-        parentPort.postMessage({type:2, id:id, message:data.toString()})
+        if(!inquiried){
+            //如果检测到这是第一次输出， 则开启问诊状态
+            inquiried=true
+            //先进行响应3,告知前端图片地址在什么地方
+            parentPort.postMessage({type:3, id:id, url:msg})
+        }
+        //响应2, 告知前端模型的意见
+        parentPort.postMessage({type:2, id:id, message:data})
     });
 }
 
-// 向 Python 脚本发送数据,
+// 向 Python 脚本发送数据, 参数为发送的数据
 const sendDataToPython = (data) => {
     pythonProcess.stdin.write(data + '\n'); // 在每条消息末尾加上换行符
 };
-
-// 对python脚本输出设置一个监听器
 
 
 // 监听主线程发送的消息
@@ -47,7 +52,7 @@ parentPort.on('message', (message) => {
     }
     //1指令, 线程停止
     else if(data.type===1){
-        if(inquiried){  //如果目前在对话中, 就停止, 如果不再对话中则不管
+        if(inquiried){ 
             //停止python脚本
             sendDataToPython('exit');
             //停止线程
@@ -58,14 +63,13 @@ parentPort.on('message', (message) => {
     //2指令, 发来数据, 传回数据
     else if(data.type===2){
         //输入数据, 这个data.message其实就是前端传入进来的话
-       if(inquiried){  //如果目前在对话中, 就停止, 如果不再对话中则不管
+       if(inquiried){ 
             sendDataToPython(data.message);
         }
     }
     //3指令, 开启对话
     else if(data.type===3){
         //输入图片, 并且确认开启python脚本
-        inquiried = true
         imgUrl = data.url
         id = data.id
         startInquriy(data.url);
