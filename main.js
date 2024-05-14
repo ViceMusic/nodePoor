@@ -3,8 +3,8 @@ const { Worker } = require('worker_threads');
 const {jsonToObject,objectToJson,generateUniqueId}=require('./tool.js')
 const fs = require('fs');
 
-// 创建 WebSocket 服务器, 该服务器监听的是3000端口
-const wss = new WebSocket.Server({ port: 3000 });
+// 创建 WebSocket 服务器, 该服务器监听的是3001端口
+const wss = new WebSocket.Server({ port: 3001 });
 
 //链接类,id, 和前端的链接ws, 和后端的链接worker
 class Connection {
