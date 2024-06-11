@@ -61,6 +61,8 @@ parentPort.on('message', (message) => {
     //1指令, 线程停止
     else if(data.type===1){
         if(inquiried){ 
+            //退出
+            parentPort.postMessage({type:1, id:id})
             //停止python脚本
             sendDataToPython('exit');
             //停止线程
@@ -77,7 +79,7 @@ parentPort.on('message', (message) => {
     }
     //3指令, 开启对话
     else if(data.type===3){
-        //输入图片, 并且确认开启python脚本
+        //设置图片的地址, 并且确认开启python脚本
         imgUrl = data.url
         id = data.id
         startInquriy(data.url);
